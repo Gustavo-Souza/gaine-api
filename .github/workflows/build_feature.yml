@@ -1,0 +1,33 @@
+name: Build feature
+
+on:
+  push:
+    branches:
+      - "feature-**"
+
+jobs:
+  unit_test:
+    name: Unit tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Checkout
+        uses: actions/checkout@v2
+
+      - name: 2. Creating PHP 7.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "7.3"
+          extensions: xdebug
+
+      - name: 3. Validate composer.json
+        run: composer validate
+
+      - name: 4. Install dependencies
+        run: composer install --no-interaction --no-suggest --prefer-dist
+
+      - name: 5. Run tests
+        run: composer test:details
+
+      - name: 6. Run coverage
+        run: composer test:coverage
