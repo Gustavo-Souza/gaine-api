@@ -26,4 +26,6 @@ interface UserRepositoryInterface
         string $firebase_authentication_name,
         string $firebase_cloud_messaging_device_id
     ): void;
+
+    public function setNotificationEnabled(int $userId, bool $enabled): void;
 }
