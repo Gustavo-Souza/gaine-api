@@ -19,6 +19,7 @@ use function PHPUnit\Framework\assertJson;
 use function PHPUnit\Framework\assertObjectHasAttribute;
 use function PHPUnit\Framework\assertThat;
 use function PHPUnit\Framework\equalTo;
+use function PHPUnit\Framework\never;
 use function PHPUnit\Framework\once;
 
 class UserAuthActionTest extends TestCase
@@ -80,7 +81,7 @@ class UserAuthActionTest extends TestCase
         );
 
         // Act
-        $actionResult = $action->__invoke((object) $params);
+        $actionResult = $action->__invoke($params);
         $json = $actionResult->getJson();
         $jsonArray = json_decode($json, true);
 
@@ -128,7 +129,7 @@ class UserAuthActionTest extends TestCase
         );
 
         // Act
-        $actionResult = $action->__invoke((object) $params);
+        $actionResult = $action->__invoke($params);
         $json = $actionResult->getJson();
         $jsonArray = json_decode($json, true);
 
@@ -139,6 +140,125 @@ class UserAuthActionTest extends TestCase
 
         $result = JwtToken::decode($jsonArray['token'], $_ENV['JWT_SECRET']);
         assertObjectHasAttribute('exp', $result);
+    }
+
+    public function testFailedDueToMissingParams(): void
+    {
+        /*
+            1. Launch a ValidationException when validating params.
+            2. Returns an ActionResult with status Internal Server Error (200).
+        */
+
+        // Arrange
+        $this->userRepository
+            ->expects(never())
+            ->method('findByFirebaseAuthenticationId');
+
+        $params = [
+            'firebase_authentication_name' => 'Unknown',
+            'firebase_cloud_messaging_device_id' => '#a'
+        ];
+        $action = new UserAuthAction(
+            $this->userRepository,
+            $this->authRepository
+        );
+
+        // Act
+        $actionResult = $action->__invoke($params);
+
+        // Assert
+        assertThat($actionResult->getHttpStatusCode(), equalTo(400));
+        assertThat($actionResult->getJson(), equalTo(''));
+    }
+
+    public function testFailedDueToInvalidFirebaseAuthenticationId(): void
+    {
+        /*
+            1. Launch a ValidationException when validating params.
+            2. Returns an ActionResult with status Internal Server Error (200).
+        */
+
+        // Arrange
+        $this->userRepository
+            ->expects(never())
+            ->method('findByFirebaseAuthenticationId');
+
+        $params = [
+            'firebase_authentication_id' => '!a',
+            'firebase_authentication_name' => 'Unknown',
+            'firebase_cloud_messaging_device_id' => 'a'
+        ];
+        $action = new UserAuthAction(
+            $this->userRepository,
+            $this->authRepository
+        );
+
+        // Act
+        $actionResult = $action->__invoke($params);
+
+        // Assert
+        assertThat($actionResult->getHttpStatusCode(), equalTo(400));
+        assertThat($actionResult->getJson(), equalTo(''));
+    }
+
+    public function testFailedDueToInvalidFirebaseAuthenticationName(): void
+    {
+        /*
+            1. Launch a ValidationException when validating params.
+            2. Returns an ActionResult with status Internal Server Error (200).
+        */
+
+        // Arrange
+        $this->userRepository
+            ->expects(never())
+            ->method('findByFirebaseAuthenticationId');
+
+        $params = [
+            'firebase_authentication_id' => 'a',
+            'firebase_authentication_name' => '@Unknown',
+            'firebase_cloud_messaging_device_id' => 'a'
+        ];
+        $action = new UserAuthAction(
+            $this->userRepository,
+            $this->authRepository
+        );
+
+        // Act
+        $actionResult = $action->__invoke($params);
+
+        // Assert
+        assertThat($actionResult->getHttpStatusCode(), equalTo(400));
+        assertThat($actionResult->getJson(), equalTo(''));
+    }
+
+    public function testFailedDueToInvalidFirebaseCloudMessagingDeviceId(): void
+    {
+        /*
+            1. Launch a ValidationException when validating params.
+            2. Returns an ActionResult with status Internal Server Error (200).
+        */
+
+        // Arrange
+        $this->userRepository
+            ->expects(never())
+            ->method('findByFirebaseAuthenticationId');
+
+        $params = [
+            'firebase_authentication_id' => 'a',
+            'firebase_authentication_name' => 'Unknown',
+            'firebase_cloud_messaging_device_id' => '#a'
+        ];
+        $action = new UserAuthAction(
+            $this->userRepository,
+            $this->authRepository
+        );
+
+        // Act
+        $actionResult = $action->__invoke($params);
+
+        // Assert
+        assertThat($actionResult->getHttpStatusCode(), equalTo(400));
+        assertThat($actionResult->getJson(), equalTo(''));
     }
 
     public function testFailedDueToDatabaseError(): void
@@ -165,7 +285,7 @@ class UserAuthActionTest extends TestCase
         );
 
         // Act
-        $actionResult = $action->__invoke((object) $params);
+        $actionResult = $action->__invoke($params);
 
         // Assert
         assertThat($actionResult->getHttpStatusCode(), equalTo(500));
@@ -196,7 +316,7 @@ class UserAuthActionTest extends TestCase
         );
 
         // Act
-        $actionResult = $action->__invoke((object) $params);
+        $actionResult = $action->__invoke($params);
 
         // Assert
         assertThat($actionResult->getHttpStatusCode(), equalTo(500));

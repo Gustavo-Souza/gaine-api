@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Actions\User;
 
 use App\Actions\ActionResult;
+use App\Actions\User\Validation\UserAuthValidation;
 use App\Data\Exception\ModelNotFoundException;
 use App\Data\Model\User;
 use App\Data\Repository\AuthRepositoryInterface;
 use App\Data\Repository\UserRepositoryInterface;
+use App\Exception\ValidationException;
 use App\Security\JwtToken;
 use App\Util\Environment;
 use Exception;
@@ -33,9 +35,11 @@ class UserAuthAction
         $this->authRepository = $authRepository;
     }
 
-    public function __invoke(stdClass $params): ActionResult
+    public function __invoke(array $requestParams): ActionResult
     {
         try {
+            $params = UserAuthValidation::validate($requestParams);
+
             $user = $this->userRepository->findByFirebaseAuthenticationId(
                 $params->firebase_authentication_id
             );
@@ -43,6 +47,8 @@ class UserAuthAction
             return $this->loginUser($user, $params);
         } catch (ModelNotFoundException $_) {
             return $this->registerUser($params);
+        } catch (ValidationException $exception) {
+            return $this->badRequest($exception);
         } catch (Exception $exception) {
             // Some error happened.
             return $this->error($exception);
@@ -87,6 +93,11 @@ class UserAuthAction
         $json = json_encode($jsonArray);
 
         return new ActionResult(200, $json);
+    }
+
+    private function badRequest(ValidationException $exception): ActionResult
+    {
+        return new ActionResult(400);
     }
 
     private function error(Exception $exception): ActionResult
