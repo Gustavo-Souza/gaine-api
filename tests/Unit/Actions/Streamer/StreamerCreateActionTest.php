@@ -7,12 +7,14 @@ namespace Test\Unit\Actions\Streamer;
 use App\Actions\Streamer\StreamerCreateAction;
 use App\Data\Exception\ModelAlreadyExistsException;
 use App\Data\Repository\StreamerRepositoryInterface;
+use App\Exception\ValidationException;
 use Exception;
 use PDOException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 use function PHPUnit\Framework\assertThat;
+use function PHPUnit\Framework\assertTrue;
 use function PHPUnit\Framework\equalTo;
 use function PHPUnit\Framework\never;
 use function PHPUnit\Framework\once;
@@ -33,11 +35,6 @@ class StreamerCreateActionTest extends TestCase
 
     public function testCreated(): void
     {
-        /*
-            1. Save the streamer.
-            2. Returns an ActionResult with status Created (201).
-        */
-
         // Arrange
         $this->streamerRepository
             ->expects(once())
@@ -50,19 +47,14 @@ class StreamerCreateActionTest extends TestCase
         $action = new StreamerCreateAction($this->streamerRepository);
 
         // Act
-        $actionResult = $action->__invoke($params);
+        $action->__invoke($params);
 
         // Assert
-        assertThat($actionResult->getHttpStatusCode(), equalTo(201));
+        assertTrue(true);
     }
 
     public function testFailedDueToStreamerAlreadyCreated(): void
     {
-        /*
-            1. Save the streamer.
-            2. Returns an ActionResult with status See Other (303).
-        */
-
         // Arrange
         $this->streamerRepository
             ->expects(once())
@@ -76,19 +68,13 @@ class StreamerCreateActionTest extends TestCase
         $action = new StreamerCreateAction($this->streamerRepository);
 
         // Act
-        $actionResult = $action->__invoke($params);
+        $this->expectException(ModelAlreadyExistsException::class);
 
-        // Assert
-        assertThat($actionResult->getHttpStatusCode(), equalTo(303));
+        $action->__invoke($params);
     }
 
     public function testFailedDueToMissingParams(): void
     {
-        /*
-            1. Save the streamer.
-            2. Returns an ActionResult with status Bad Request (400).
-        */
-
         // Arrange
         $this->streamerRepository
             ->expects(never())
@@ -100,19 +86,13 @@ class StreamerCreateActionTest extends TestCase
         $action = new StreamerCreateAction($this->streamerRepository);
 
         // Act
-        $actionResult = $action->__invoke($params);
+        $this->expectException(ValidationException::class);
 
-        // Assert
-        assertThat($actionResult->getHttpStatusCode(), equalTo(400));
+        $action->__invoke($params);
     }
 
     public function testFailedDueToInvalidStreamerCode(): void
     {
-        /*
-            1. Save the streamer.
-            2. Returns an ActionResult with status Bad Request (400).
-        */
-
         // Arrange
         $this->streamerRepository
             ->expects(never())
@@ -125,19 +105,13 @@ class StreamerCreateActionTest extends TestCase
         $action = new StreamerCreateAction($this->streamerRepository);
 
         // Act
-        $actionResult = $action->__invoke($params);
+        $this->expectException(ValidationException::class);
 
-        // Assert
-        assertThat($actionResult->getHttpStatusCode(), equalTo(400));
+        $action->__invoke($params);
     }
 
     public function testFailedDueToInvalidStreamerName(): void
     {
-        /*
-            1. Save the streamer.
-            2. Returns an ActionResult with status Bad Request (400).
-        */
-
         // Arrange
         $this->streamerRepository
             ->expects(never())
@@ -150,63 +124,8 @@ class StreamerCreateActionTest extends TestCase
         $action = new StreamerCreateAction($this->streamerRepository);
 
         // Act
-        $actionResult = $action->__invoke($params);
+        $this->expectException(ValidationException::class);
 
-        // Assert
-        assertThat($actionResult->getHttpStatusCode(), equalTo(400));
-    }
-
-    public function testFailedDueToDatabaseError(): void
-    {
-        /*
-            1. Launch a PDOException when getting all streamers.
-            2. Returns an ActionResult with http status code
-                Internal Server Error (500).
-        */
-
-        // Arrange
-        $this->streamerRepository
-            ->expects(once())
-            ->method('create')
-            ->willThrowException(new PDOException());
-
-        $params = [
-            'streamer_code' => 'UNKNW',
-            'streamer_name' => 'Unknown'
-        ];
-        $action = new StreamerCreateAction($this->streamerRepository);
-
-        // Act
-        $actionResult = $action->__invoke($params);
-
-        // Assert
-        assertThat($actionResult->getHttpStatusCode(), equalTo(500));
-    }
-
-    public function testFailedDueToUnknownError(): void
-    {
-        /*
-            1. Launch a PDOException when creating streamer.
-            2. Returns an ActionResult with http status code
-                Internal Server Error (500).
-        */
-
-        // Arrange
-        $this->streamerRepository
-            ->expects(once())
-            ->method('create')
-            ->willThrowException(new Exception());
-
-        $params = [
-            'streamer_code' => 'UNKNW',
-            'streamer_name' => 'Unknown'
-        ];
-        $action = new StreamerCreateAction($this->streamerRepository);
-
-        // Act
-        $actionResult = $action->__invoke($params);
-
-        // Assert
-        assertThat($actionResult->getHttpStatusCode(), equalTo(500));
+        $action->__invoke($params);
     }
 }
