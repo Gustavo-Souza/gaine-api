@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace App\Actions\User;
 
-use App\Actions\ActionResult;
 use App\Actions\User\Validation\UserSettingsValidation;
 use App\Data\Repository\UserRepositoryInterface;
 use App\Exception\ValidationException;
-use Exception;
-use stdClass;
 
 class UserSettingsAction
 {
@@ -23,43 +20,14 @@ class UserSettingsAction
         $this->userRepository = $userRepository;
     }
 
-    public function __invoke(int $userId, array $requestParams): ActionResult
+    /** @throws ValidationException */
+    public function __invoke(int $userId, array $requestParams): void
     {
-        try {
-            $params = UserSettingsValidation::validate($requestParams);
-            return $this->updateUserSettings($userId, $params);
-        } catch (ValidationException $exception) {
-            return $this->badRequest($exception);
-        } catch (Exception $exception) {
-            return $this->error($exception);
-        }
+        $params = UserSettingsValidation::validate($requestParams);
         
-        return new ActionResult(200);
-    }
-
-
-    private function updateUserSettings(
-        int $userId,
-        stdClass $params
-    ): ActionResult {
-        $notificationEnabled = $params->notification;
-
         $this->userRepository->setNotificationEnabled(
             $userId,
-            $notificationEnabled
+            $params->notification
         );
-
-        return new ActionResult(200);
-    }
-
-    private function badRequest(ValidationException $exception): ActionResult
-    {
-        return new ActionResult(400);
-    }
-
-    private function error(Exception $exception): ActionResult
-    {
-        // TODO: Log error
-        return new ActionResult(500);
     }
 }
