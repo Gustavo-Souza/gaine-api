@@ -20,4 +20,7 @@ interface StreamerRepositoryInterface
         string $streamerCodeUpdated,
         string $streamerNameUpdated
     ): void;
+
+    /** @throws ModelNotFoundException */
+    public function delete(string $streamerCode): void;
 }
