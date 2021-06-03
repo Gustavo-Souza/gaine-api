@@ -20,32 +20,8 @@ class StreamerListAction
         $this->streamerRepository = $streamerRepository;
     }
 
-    public function __invoke(): ActionResult
+    public function __invoke(): array
     {
-        try {
-            return $this->getAllStreamers();
-        } catch (PDOException $exception) {
-            return $this->error($exception);
-        } catch (Exception $exception) {
-            return $this->error($exception);
-        }
-
-        return new ActionResult(200);
-    }
-
-
-    private function getAllStreamers(): ActionResult
-    {
-        $streamers = $this->streamerRepository->getAll();
-        $json = json_encode($streamers);
-
-        return new ActionResult(200, $json);
-    }
-
-
-    private function error(Exception $exception): ActionResult
-    {
-        // TODO: Log error
-        return new ActionResult(500);
+        return $this->streamerRepository->getAll();
     }
 }
