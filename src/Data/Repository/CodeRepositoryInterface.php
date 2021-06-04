@@ -21,4 +21,6 @@ interface CodeRepositoryInterface
         string $streamerCode,
         string $code
     ): Code;
+
+    public function delete(string $streamerCode, string $code);
 }
