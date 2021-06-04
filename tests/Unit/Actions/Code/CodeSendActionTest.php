@@ -17,7 +17,7 @@ use function PHPUnit\Framework\assertTrue;
 use function PHPUnit\Framework\never;
 use function PHPUnit\Framework\once;
 
-class ActionSendCodeTest extends TestCase
+class CodeSendActionTest extends TestCase
 {
     /** @var CodeRepositoryInterface|MockObject */
     private $codeRepository;
