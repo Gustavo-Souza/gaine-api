@@ -9,6 +9,8 @@ use App\Data\Model\User;
 
 interface UserRepositoryInterface
 {
+    public function getAllUsersDeviceIdWithNotificationEnabled(): array;
+  
     /** @throws ModelNotFoundException */
     public function findByFirebaseAuthenticationId(
         string $firebaseAuthenticationId
