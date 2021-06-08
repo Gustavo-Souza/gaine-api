@@ -3,23 +3,19 @@
 declare(strict_types=1);
 
 use App\Actions\User\UserAuthAction;
-use App\Data\ModelMapper\UserModelMapper;
-use App\Data\Repository\AuthRepositoryEloquent;
 use App\Data\Repository\AuthRepositoryInterface;
-use App\Data\Repository\UserRepositoryEloquent;
 use App\Data\Repository\UserRepositoryInterface;
+use Test\Integration\Data\Repository\AuthRepositoryFake;
+use Test\Integration\Data\Repository\UserRepositoryFake;
 
 use function DI\create;
 use function DI\get;
 
 return [
-    // Model mappers
-    UserModelMapper::class => create(UserModelMapper::class),
 
     // Repositories
-    UserRepositoryInterface::class => create(UserRepositoryEloquent::class)
-        ->constructor(get(UserModelMapper::class)),
-    AuthRepositoryInterface::class => create(AuthRepositoryEloquent::class),
+    UserRepositoryInterface::class => create(UserRepositoryFake::class),
+    AuthRepositoryInterface::class => create(AuthRepositoryFake::class),
 
     // Actions
     UserAuthAction::class => create(UserAuthAction::class)
