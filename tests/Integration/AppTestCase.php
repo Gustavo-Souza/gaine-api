@@ -1,0 +1,124 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Test\Integration;
+
+use App\Bootstrap\ApplicationBootstrap;
+use App\Bootstrap\EloquentBootstrap;
+use DI\Bridge\Slim\Bridge;
+use DI\ContainerBuilder;
+use Illuminate\Database\Capsule\Manager;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Facade;
+use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
+use Slim\App;
+use Slim\Psr7\Factory\RequestFactory;
+use Slim\Psr7\Factory\StreamFactory;
+use Slim\Psr7\Factory\UriFactory;
+use Slim\Psr7\Headers;
+use Slim\Psr7\Request;
+
+class AppTestCase extends TestCase
+{
+    /** @var App */
+    private $app;
+
+    /** @var EloquentBootstrap */
+    private $eloquentBootstrap;
+
+    protected const GET = 'GET';
+    protected const POST = 'POST';
+
+
+    protected function setUp(): void
+    {
+        $applicationBootstrap = new ApplicationBootstrap();
+        $this->app = $applicationBootstrap->getApplication();
+        $this->eloquentBootstrap = $applicationBootstrap->getEloquent();
+
+        /* $dependencies = (array) require __DIR__ . '/../../src/dependencies.php';
+        $containerBuilder = new ContainerBuilder();
+        $containerBuilder->addDefinitions($dependencies);
+        $container = $containerBuilder->build();
+
+        $this->app = Bridge::create($container);
+
+        $middlewares = require __DIR__ . '/../../src/middlewares.php';
+        $middlewares($this->app);
+
+        $routes = require __DIR__ . '/../../src/routes.php';
+        $routes($this->app); */
+    }
+
+    /** Makes a request with GET method. */
+    protected function get(string $url, array $params = []): ResponseInterface
+    {
+        return $this->requestWithQueryParams('GET', $url, $params);
+    }
+
+    /** Makes a request with POST method. */
+    protected function post(string $url, array $params = []): ResponseInterface
+    {
+        return $this->requestWithBodyParams('POST', $url, $params);
+    }
+
+    /** Makes a request with PUT method. */
+    protected function put(string $url, array $params = []): ResponseInterface
+    {
+        return $this->requestWithBodyParams('PUT', $url, $params);
+    }
+
+    /** Makes a request with GET method. */
+    protected function patch(string $url, array $params = []): ResponseInterface
+    {
+        return $this->requestWithQueryParams('PATCH', $url, $params);
+    }
+
+    protected function cleanTables(array $tables = []): void
+    {
+        foreach ($tables as $table) {
+            $this->eloquentBootstrap->get($table)->delete();
+        }
+    }
+
+
+    private function requestWithQueryParams(string $method, string $url, array $params = []): ResponseInterface
+    {
+        $urlWithParams = '';
+        if (empty($params) === false) {
+            $urlWithParams .= '?' . http_build_query($params);
+        }
+
+        $requestFactory = new RequestFactory();
+        $request = $requestFactory->createRequest($method, $urlWithParams);
+
+        return $this->app->handle($request);
+    }
+
+    private function requestWithBodyParams(string $method, string $url, array $params = []): ResponseInterface
+    {
+        $paramsString = http_build_query($params);
+        $uriFactory = new UriFactory();
+        $streamFactory = new StreamFactory();
+
+        $uri = $uriFactory->createUri($url);
+        $headers = new Headers();
+        $cookies = [];
+        $serverParams = [];
+        $body = $streamFactory->createStream($paramsString);
+
+        $request = new Request(
+            $method,
+            $uri,
+            $headers,
+            $cookies,
+            $serverParams,
+            $body
+        );
+        $request = $request->withParsedBody($params);
+
+        return $this->app->handle($request);
+    }
+}

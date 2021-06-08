@@ -20,6 +20,9 @@ class ApplicationBootstrap
     /** @var \Slim\App */
     private $app;
 
+    /** @var EloquentBootstrap */
+    private $eloquentBootstrap;
+
     /** @var \DI\ContainerBuilder */
     private $containerBuilder;
 
@@ -36,6 +39,9 @@ class ApplicationBootstrap
         $this->showErrorsInDebugMode();
         $this->addMiddlewares();
         $this->addRoutes();
+
+        // Eloquent bootstrap
+        $this->eloquentBootstrap = new EloquentBootstrap();
     }
 
     public function run(): void
@@ -46,6 +52,11 @@ class ApplicationBootstrap
     public function getApplication(): \Slim\App
     {
         return $this->app;
+    }
+
+    public function getEloquent(): EloquentBootstrap
+    {
+        return $this->eloquentBootstrap;
     }
 
 
