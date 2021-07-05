@@ -22,11 +22,11 @@ use Slim\Psr7\Request;
 
 class AppTestCase extends TestCase
 {
-    /** @var App */
-    private $app;
-
     /** @var EloquentBootstrap */
     private $eloquentBootstrap;
+
+    /** @var App */
+    protected $app;
 
     protected const GET = 'GET';
     protected const POST = 'POST';
@@ -53,27 +53,39 @@ class AppTestCase extends TestCase
     }
 
     /** Makes a request with GET method. */
-    protected function get(string $url, array $params = []): ResponseInterface
-    {
-        return $this->requestWithQueryParams('GET', $url, $params);
+    protected function get(
+        string $url,
+        array $params = [],
+        array $headers = []
+    ): ResponseInterface {
+        return $this->requestWithQueryParams('GET', $url, $params, $headers);
     }
 
     /** Makes a request with POST method. */
-    protected function post(string $url, array $params = []): ResponseInterface
-    {
-        return $this->requestWithBodyParams('POST', $url, $params);
+    protected function post(
+        string $url,
+        array $params = [],
+        array $headers = []
+    ): ResponseInterface {
+        return $this->requestWithBodyParams('POST', $url, $params, $headers);
     }
 
     /** Makes a request with PUT method. */
-    protected function put(string $url, array $params = []): ResponseInterface
-    {
-        return $this->requestWithBodyParams('PUT', $url, $params);
+    protected function put(
+        string $url,
+        array $params = [],
+        array $headers = []
+    ): ResponseInterface {
+        return $this->requestWithBodyParams('PUT', $url, $params, $headers);
     }
 
     /** Makes a request with GET method. */
-    protected function patch(string $url, array $params = []): ResponseInterface
-    {
-        return $this->requestWithQueryParams('PATCH', $url, $params);
+    protected function patch(
+        string $url,
+        array $params = [],
+        array $headers = []
+    ): ResponseInterface {
+        return $this->requestWithBodyParams('PATCH', $url, $params, $headers);
     }
 
     protected function cleanTables(array $tables = []): void
@@ -84,27 +96,38 @@ class AppTestCase extends TestCase
     }
 
 
-    private function requestWithQueryParams(string $method, string $url, array $params = []): ResponseInterface
-    {
+    private function requestWithQueryParams(
+        string $method,
+        string $url,
+        array $params = [],
+        array $headers = []
+    ): ResponseInterface {
         $urlWithParams = '';
         if (empty($params) === false) {
-            $urlWithParams .= '?' . http_build_query($params);
+            $url .= '?' . http_build_query($params);
         }
 
         $requestFactory = new RequestFactory();
         $request = $requestFactory->createRequest($method, $urlWithParams);
+        foreach ($headers as $headerKey => $headerValue) {
+            $request = $request->withHeader($headerKey, $headerValue);
+        }
 
         return $this->app->handle($request);
     }
 
-    private function requestWithBodyParams(string $method, string $url, array $params = []): ResponseInterface
-    {
+    private function requestWithBodyParams(
+        string $method,
+        string $url,
+        array $params = [],
+        array $headers = []
+    ): ResponseInterface {
         $paramsString = http_build_query($params);
         $uriFactory = new UriFactory();
         $streamFactory = new StreamFactory();
 
         $uri = $uriFactory->createUri($url);
-        $headers = new Headers();
+        $headers = new Headers($headers);
         $cookies = [];
         $serverParams = [];
         $body = $streamFactory->createStream($paramsString);
