@@ -128,7 +128,7 @@ class UserSettingsControllerTest extends AppTestCase
         $jsonArray = json_decode($authenticationJson, true);
         $jwtToken = $jsonArray['token'];
 
-        $params = [];
+        $params = [''];
         $headers = ['Authorization' => 'Bearer ' . $jwtToken];
 
         // Act
