@@ -70,5 +70,8 @@ class UserRepositoryEloquent implements UserRepositoryInterface
 
     public function setNotificationEnabled(int $userId, bool $enabled): void
     {
+        $entity = UserEntity::query()->find($userId, ['id', 'notification']);
+        $entity->notification = $enabled;
+        $entity->saveOrFail();
     }
 }
