@@ -19,7 +19,8 @@ return [
     // Repositories
     UserRepositoryInterface::class => create(UserRepositoryEloquent::class)
         ->constructor(get(UserModelMapper::class)),
-    AuthRepositoryInterface::class => create(AuthRepositoryEloquent::class),
+    AuthRepositoryInterface::class => create(AuthRepositoryEloquent::class)
+        ->constructor(get(UserModelMapper::class)),
 
     // Actions
     UserAuthAction::class => create(UserAuthAction::class)

@@ -13,4 +13,12 @@ class AuthEntity extends Model
         'user_id',
         'token'
     ];
+
+
+    public function user(): UserEntity
+    {
+        return $this->belongsTo(UserEntity::class, 'user_id', 'id')
+            ->get()
+            ->first();
+    }
 }
