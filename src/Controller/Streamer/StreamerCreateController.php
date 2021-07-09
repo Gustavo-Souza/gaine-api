@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Streamer;
 
 use App\Actions\Streamer\StreamerCreateAction;
+use App\Data\Exception\ModelAlreadyExistsException;
 use App\Exception\ValidationException;
 use Fig\Http\Message\StatusCodeInterface as StatusCode;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -28,6 +29,8 @@ class StreamerCreateController
             return $response->withStatus(StatusCode::STATUS_CREATED);
         } catch (ValidationException $exception) {
             return $response->withStatus(StatusCode::STATUS_BAD_REQUEST);
+        } catch (ModelAlreadyExistsException $exception) {
+            return $response->withStatus(StatusCode::STATUS_SEE_OTHER);
         }
     }
 }
