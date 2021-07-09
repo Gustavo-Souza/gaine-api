@@ -39,6 +39,25 @@ class StreamerCreateControllerTest extends AppTestCase
         assertThat($response->getStatusCode(), equalTo(StatusCode::STATUS_CREATED));
     }
 
+    public function testReturnsStatusCode303WhenStreamerAlreadyExists(): void
+    {
+        // Arrange
+        $jwtToken = $this->authenticate();
+
+        $params = [
+            'streamer_code' => 'MYS',
+            'streamer_name' => 'MyStreamer'
+        ];
+        $headers = ['Authorization' => 'Bearer ' . $jwtToken];
+
+        // Act
+        $this->post('/streamers', $params, $headers);
+        $response = $this->post('/streamers', $params, $headers);
+
+        // Assert
+        assertThat($response->getStatusCode(), equalTo(StatusCode::STATUS_SEE_OTHER));
+    }
+
     public function testReturnsStatusCode401WhenNotAuthenticated(): void
     {
         // Arrange

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Data\Repository;
 
+use App\Data\Exception\ModelAlreadyExistsException;
 use App\Data\Model\StreamerEntity;
+use Illuminate\Database\QueryException;
 
 class StreamerRepositoryEloquent implements StreamerRepositoryInterface
 {
@@ -19,7 +21,19 @@ class StreamerRepositoryEloquent implements StreamerRepositoryInterface
         $entity = new StreamerEntity();
         $entity->code = $streamerCode;
         $entity->name = $streamerName;
-        $entity->saveOrFail();
+        
+        try {
+            $entity->saveOrFail();
+        } catch (QueryException $exception) {
+            // Duplication entry
+            if ($exception->getCode() === '23505') {
+                throw new ModelAlreadyExistsException();
+                return;
+            }
+
+            // If not, throw the original exception.
+            throw $exception;
+        }
     }
 
     public function update(
