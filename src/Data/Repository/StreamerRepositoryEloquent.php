@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Data\Repository;
 
 use App\Data\Exception\ModelAlreadyExistsException;
+use App\Data\Exception\ModelNotFoundException;
 use App\Data\Model\StreamerEntity;
 use Illuminate\Database\QueryException;
 
@@ -40,7 +41,15 @@ class StreamerRepositoryEloquent implements StreamerRepositoryInterface
         string $streamerCodeUpdated,
         string $streamerNameUpdated
     ): void {
-        // TODO: Implementation
+        /** @var StreamerEntity */
+        $entity = StreamerEntity::query()->where('code', $streamerCode)->first();
+        if ($entity === null) {
+            throw new ModelNotFoundException();
+        }
+
+        $entity->code = $streamerCodeUpdated;
+        $entity->name = $streamerNameUpdated;
+        $entity->saveOrFail();
     }
 
     public function delete(string $streamerCode): void
