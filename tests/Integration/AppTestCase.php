@@ -52,6 +52,25 @@ class AppTestCase extends TestCase
         $routes($this->app); */
     }
 
+    /** Authenticates and return the JWT token. */
+    protected function authenticate(): String
+    {
+        // Make the request with params.
+        $paramsAuthentication = [
+            'firebase_authentication_id' => 'auth_test',
+            'firebase_authentication_name' => 'Test',
+            'firebase_cloud_messaging_device_id' => 'device_test'
+        ];
+        $responseAuthentication = $this->post('/users', $paramsAuthentication);
+
+        // Get the jwt token from json
+        $authenticationJson = $responseAuthentication->getBody()->__toString();
+        $jsonArray = json_decode($authenticationJson, true);
+        $jwtToken = $jsonArray['token'];
+
+        return $jwtToken;
+    }
+
     /** Makes a request with GET method. */
     protected function get(
         string $url,
