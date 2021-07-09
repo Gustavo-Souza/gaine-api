@@ -20,7 +20,8 @@ return [
     // Directories
     'migration_dirs' => [
         'user' => __DIR__ . '/migrations/user',
-        'auth' => __DIR__ . '/migrations/auth'
+        'auth' => __DIR__ . '/migrations/auth',
+        'streamer' => __DIR__ . '/migrations/streamer'
     ],
 
     // Environments
