@@ -12,8 +12,7 @@ class StreamerRepositoryEloquent implements StreamerRepositoryInterface
 {
     public function getAll(): array
     {
-        // TODO: Implementation
-        return [];
+        return StreamerEntity::all()->toArray();
     }
 
     public function create(string $streamerCode, string $streamerName): void

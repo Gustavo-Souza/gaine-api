@@ -19,6 +19,7 @@ return static function (Slim\App $app): void {
     $app->group('', function (RouteCollectorProxy $group): void {
         $group->patch('/users', App\Controller\User\UserSettingsController::class);
 
+        $group->get('/streamers', App\Controller\Streamer\StreamerListController::class);
         $group->post('/streamers', App\Controller\Streamer\StreamerCreateController::class);
     })->addMiddleware($authMiddleware);
 };
