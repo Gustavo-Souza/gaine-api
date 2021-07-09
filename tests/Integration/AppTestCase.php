@@ -123,7 +123,9 @@ class AppTestCase extends TestCase
     ): ResponseInterface {
         $urlWithParams = '';
         if (empty($params) === false) {
-            $url .= '?' . http_build_query($params);
+            $urlWithParams = $url . '?' . http_build_query($params);
+        } else {
+            $urlWithParams = $url;
         }
 
         $requestFactory = new RequestFactory();
