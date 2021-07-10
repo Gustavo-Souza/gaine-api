@@ -12,8 +12,12 @@ Dotenv::createImmutable(__DIR__, '.env')->safeLoad();
 
 $database_url = Environment::get('DATABASE_URL');
 $database_config = parse_url($database_url);
-$isDebugMode = Environment::get('APP_DEBUG');
+$isDebugMode = Environment::get('APP_DEBUG', false);
 $defaultEnvironment = $isDebugMode ? 'local' : 'production';
+
+if ($isDebugMode === false && $database_config['scheme'] === 'postgres') {
+    $database_config['scheme'] = 'pgsql';
+}
 
 // Configuration
 return [
