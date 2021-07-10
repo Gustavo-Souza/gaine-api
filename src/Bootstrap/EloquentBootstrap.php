@@ -19,6 +19,9 @@ class EloquentBootstrap
         $database_url = Environment::get('DATABASE_URL');
         $database_config = parse_url($database_url);
 
+        $database_config['scheme'] =
+            $this->adjustDriverIfIsPostgres($database_config);
+
         $configuration = [
             'driver' => $database_config['scheme'],
             'host' => $database_config['host'],
@@ -38,5 +41,15 @@ class EloquentBootstrap
     public function get(string $tableName): Builder
     {
         return $this->capsule->table($tableName);
+    }
+
+    private function adjustDriverIfIsPostgres(
+        array $database_config
+    ): string {
+        if ($database_config['scheme'] === 'postgres') {
+            return 'pgsql';
+        }
+
+        return $database_config['scheme'];
     }
 }
