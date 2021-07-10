@@ -54,6 +54,12 @@ class StreamerRepositoryEloquent implements StreamerRepositoryInterface
 
     public function delete(string $streamerCode): void
     {
-        // TODO: Implementation
+        /** @var StreamerEntity */
+        $entity = StreamerEntity::query()->where('code', $streamerCode)->first();
+        if ($entity === null) {
+            throw new ModelNotFoundException();
+        }
+
+        $entity->delete();
     }
 }

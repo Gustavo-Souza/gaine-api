@@ -22,5 +22,6 @@ return static function (Slim\App $app): void {
         $group->get('/streamers', App\Controller\Streamer\StreamerListController::class);
         $group->post('/streamers', App\Controller\Streamer\StreamerCreateController::class);
         $group->put('/streamers', App\Controller\Streamer\StreamerUpdateController::class);
+        $group->delete('/streamers', App\Controller\Streamer\StreamerDeleteController::class);
     })->addMiddleware($authMiddleware);
 };

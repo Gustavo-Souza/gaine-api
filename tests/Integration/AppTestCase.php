@@ -107,6 +107,15 @@ class AppTestCase extends TestCase
         return $this->requestWithBodyParams('PATCH', $url, $params, $headers);
     }
 
+    /** Makes a request with DELETE method. */
+    protected function delete(
+        string $url,
+        array $params = [],
+        array $headers = []
+    ): ResponseInterface {
+        return $this->requestWithBodyParams('DELETE', $url, $params, $headers);
+    }
+
     protected function cleanTables(array $tables = []): void
     {
         foreach ($tables as $table) {
