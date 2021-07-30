@@ -11,7 +11,7 @@ class UserAuthValidation
 {
     private static $regexFirebaseAuthenticationId = '/^[\w]+$/';
     private static $regexFirebaseAuthenticationName = "/^[A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ'\s]+$/";
-    private static $regexFirebaseCloudMessagingDeviceId = '/^[\w:]+$/';
+    private static $regexFirebaseCloudMessagingDeviceId = '/^[\w\-:]+$/';
 
 
     /** @throws ValidationException */
